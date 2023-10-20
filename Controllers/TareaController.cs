@@ -40,41 +40,17 @@ namespace PruebaRedHat.Controllers
 
 
 
-        [HttpPut("Editar/{IdTarea}")]
-        public async Task<IActionResult> Editar(int IdTarea, Tarea tarea)
+        [HttpPut]
+        [Route("Editar")]
+        public async Task<IActionResult> Editar([FromBody] Tarea request)
         {
-            if (IdTarea != tarea.IdTarea)
-            {
-                return BadRequest("El ID de la tarea no coincide con la solicitud.");
-            }
 
-            _dbcontext.Entry(tarea).State = EntityState.Modified;
+            _dbcontext.Tareas.Update(request);
+            await _dbcontext.SaveChangesAsync();
 
-            try
-            {
-                await _dbcontext.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!TareaExists(IdTarea))
-                {
-                    return NotFound("La tarea no se encontró en la base de datos.");
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            return StatusCode(StatusCodes.Status200OK, "ok");
 
-            return NoContent(); // 204 No Content
         }
-
-
-        private bool TareaExists(int IdTarea)
-        {
-            return _dbcontext.Tareas.Any(t => t.IdTarea == IdTarea);
-        }
-    
 
 
 

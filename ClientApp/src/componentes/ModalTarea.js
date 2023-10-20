@@ -6,12 +6,13 @@ import { Modal, ModalBody, ModalHeader, Form, FormGroup, Input, Label, ModalFoot
 const modeloTarea = {
     IdTarea: 0,
     Descripcion: "",
-    Etsado: ""
+    Estado: "",
+    FechaRegistro: ""
 
 }
 
 
-const ModalTarea = ({ mostrarModal, setMostrarModal, guardarTarea,  editar,  editarTarea }) => {
+const ModalTarea = ({ mostrarModal, setMostrarModal, guardarTarea,  editar, setEditar,  editarTarea }) => {
 
     const [tarea, setTarea] = useState(modeloTarea);
 
@@ -28,9 +29,9 @@ const ModalTarea = ({ mostrarModal, setMostrarModal, guardarTarea,  editar,  edi
     }
 
 
-    const enviarTarea = () => {
+    const enviarDatos = () => {
 
-        if (tarea.IdTarea <= 0) {
+        if (tarea.IdTarea === 0) {
             guardarTarea(tarea)
         } else {
             editarTarea(tarea)
@@ -53,16 +54,22 @@ const ModalTarea = ({ mostrarModal, setMostrarModal, guardarTarea,  editar,  edi
    
 
     const cerrarModal = () => {
-
         setMostrarModal(!mostrarModal)
+        setEditar(null)
     }
 
+    const formatDate = (string) => {
+        let options = { year: 'numeric', month: 'long', day: 'numeric' };
+        let fecha = new Date(string).toLocaleDateString("es-PE", options);
+        let hora = new Date(string).toLocaleTimeString();
+        return fecha + " | " + hora
+    }
     return (
 
         <Modal isOpen={mostrarModal}>
             <ModalHeader>
 
-                {tarea.IdTarea == 0 ? "Editar Tarea" : "Editar Tarea"}
+                {tarea.IdTarea == 0 ? "Nueva Tarea" : "Editar Tarea"}
 
             </ModalHeader>
             <ModalBody>
@@ -71,25 +78,23 @@ const ModalTarea = ({ mostrarModal, setMostrarModal, guardarTarea,  editar,  edi
                         <Label>Descripcion De La Tarea:</Label>
                         <Input name="Descripcion" onChange={(e) => actualizarDato(e)} value={tarea.Descripcion} />
                     </FormGroup>
-                    <FormGroup>
-                        <Label>Seleccionar Un Estado:</Label>
-                        <select
-                            className="form-control"
-                            style={{ maxWidth: '200px' }}
-                            value={tarea.Estado}
-                            onChange={(e) => actualizarDato(e)}
-                        >
-                            <option value="">Selecciona un Estado</option>
-                            <option value="En Progreso">En Progreso</option>
-                            <option value="Completado">Completado</option>
-                            <option value="No Completado">No Completado</option>
-                        </select>
-                    </FormGroup>
+                    <select
+                        name="Estado"
+                        className="form-control"
+                        style={{ maxWidth: '200px' }}
+                        value={tarea.Estado}
+                        hange={(e) => actualizarDato(e)}
+                    >
+                        <option value="">Selecciona un Estado</option>
+                        <option value="En Progreso">En Progreso</option>
+                        <option value="Completado">Completado</option>
+                        <option value="No Completado">No Completado</option>
+                    </select>
                 </Form>
             </ModalBody>
 
             <ModalFooter>
-                <Button color="primary" size="sm" onClick={enviarTarea}>Editar</Button>
+                <Button color="primary" size="sm" onClick={enviarDatos}>Editar</Button>
                 <Button color="danger" size="sm" onClick={cerrarModal} >Cerrar</Button>
             </ModalFooter>
         </Modal>

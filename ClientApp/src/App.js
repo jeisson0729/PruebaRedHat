@@ -1,5 +1,5 @@
 ﻿import "bootstrap/dist/css/bootstrap.min.css"
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"
 import ModalTarea from "./componentes/ModalTarea"
 // import { Modal, ModalBody, ModalHeader, Form, FormGroup, Input, Label, ModalFooter, Button } from "reactstrap"
 
@@ -22,7 +22,7 @@ const App = () => {
     const [tareasFiltradas, setTareasFiltradas] = useState([]);
 
 
-    const [editar, setEditar] = useState("");
+    const [editar, setEditar] = useState(null);
     
 
     const [mostrarModal, setMostrarModal] = useState(false);
@@ -38,30 +38,28 @@ const App = () => {
 
         if (response.ok) {
             const data = await response.json();
-            console.log(data)
             setTareas(data)
         } else {
             console.log("status code:" + response.status)
         }
 
     }
-    //3.- Metodo convertir fecha
-    const formatDate = (string) => {
-        let options = { year: 'numeric', month: 'long', day: 'numeric' };
-        let fecha = new Date(string).toLocaleDateString("es-PE", options);
-        let hora = new Date(string).toLocaleTimeString();
-        return fecha + " | " + hora
-    }
+    
 
     //4.- Insertar datos
     useEffect(() => {
         mostrarTareas();
     }, [])
 
-    const editarTarea = async (contacto) => {
 
-        const response = await fetch("api/contacto/Editar", {
-            method: 'PUT',
+
+
+    //Guardar Tarea A La BD 
+    const guardarTarea = async (e) => {
+
+
+        const response = await fetch("api/tarea/Guardar", {
+            method: "POST",
             headers: {
                 'Content-Type': 'application/json;charset=utf-8'
             },
@@ -72,32 +70,29 @@ const App = () => {
         })
 
         if (response.ok) {
-            setMostrarModal(!mostrarModal);
-            mostrarTareas();
-        }
-    }
-
-
-
-    //8.- Guardar NOTA
-    const guardarTarea = async (e) => {
-
-
-        const response = await fetch("api/tarea/Guardar", {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8'
-            },
-            body: JSON.stringify(tareas)
-        })
-
-        if (response.ok) {
             setDescripcion("");
             await mostrarTareas();
         }
     }
 
-    //10 Cerrar Tarea
+
+    const editarTarea = async (tarea) => {
+
+        const response = await fetch("api/tarea/Editar", {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify(tarea)
+        })
+
+        if (response.ok) {
+            setMostrarModal(!mostrarModal); 
+            mostrarTareas();
+        }
+    }
+
+    //Seccion Eliminar Tarea De La BD y De La Lista
     const cerrarTarea = async (id) => {
 
         const response = await fetch("api/tarea/Cerrar/" + id, {
@@ -106,6 +101,14 @@ const App = () => {
 
         if (response.ok)
             await mostrarTareas();
+    }
+
+    // Conversion De Fecha
+    const formatDate = (string) => {
+        let options = { year: 'numeric', month: 'long', day: 'numeric' };
+        let fecha = new Date(string).toLocaleDateString("es-PE", options);
+        let hora = new Date(string).toLocaleTimeString();
+        return fecha + " | " + hora
     }
 
     const filtrarTareas = (busqueda) => {
@@ -164,7 +167,7 @@ const App = () => {
                                     placeholder="Ingrese La Descripcion"
                                     value={descripcion}
                                     onChange={(e) => setDescripcion(e.target.value)} />
-                                <select
+                               <select
                                     className="form-control"
                                     style={{ maxWidth: '200px' }}
                                     value={estado}
@@ -201,14 +204,13 @@ const App = () => {
 
                 </div>
 
-
                 {/*Lista*/}
 
                 <div className="row mt-4">
                     <div className="col-sm-12">
 
                         {/*6.- Listar Tareas*/}
-                        <div className="list-group">    {/* <div className="list-group"></div>  */}
+                        <div className="list-group" data={tareas}>    {/* <div className="list-group"></div>  */}
                             {
                                 tareasFiltradas.map((item) => (
                                     <div key={item.idTarea} className="list-group-item list-group-item-action">
